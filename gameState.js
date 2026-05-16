@@ -14,7 +14,7 @@ const _freshDerivedStats = typeof freshDerivedStats !== 'undefined'
   ? freshDerivedStats
   : require('./upgrades').freshDerivedStats;
 
-const ROUND_DURATION_S   = 5;
+const ROUND_DURATION_S   = 90;
 const UPGRADE_TIMEOUT_S  = 30;   // max time to spend picks before auto-skip
 const SURGE_ROUNDS       = [3, 6, 9];
 const TOTAL_ROUNDS       = 10;
@@ -87,9 +87,28 @@ class GameState {
   }
 
   // ─── Public API ─────────────────────────────────────────────────────────────
-
   start() {
-    setTimeout(() => this.nextRound(), 500);
+    // INITIAL CLASS SELECT ON GAME LAUNCH
+    // 3 free picks so players can choose their starting class/path
+    this.phase = 'upgrade';
+    for (const p of Object.values(this.players)) {
+      p.pendingPicks = 3;     // initial class choice picks
+      p.basePicks    = 0;
+      p.bonusPicks   = 0;
+    }
+
+    // Tell every client to show the upgrade screen immediately
+    for (const [id, p] of Object.entries(this.players)) {
+      const available = getAvailableUpgrades(p);   // assumes this function exists in upgrades.js
+      this.sendTo(id, {
+        type:       'upgrade_phase',
+        picks:      p.pendingPicks,
+        available,
+        upgrades:   Object.fromEntries(p.upgrades),
+        stats:      p.derivedStats,
+        isInitialClassSelect: true   // ← new flag so upgradeScreen can change the title
+      });
+    }
   }
 
   /** Called by the game loop (every ~100ms) with player input snapshot. */

@@ -589,7 +589,7 @@ function handleServerMessage(msg) {
 
 function handleGameMessage(msg) {
   switch (msg.type) {
-    case 'upgrade_phase':     upgradeUI?.open(msg); break;
+    case 'upgrade_phase':     upgradeUI?.open(msg, msg.isInitialClassSelect || false); break;
     case 'upgrade_applied':   upgradeUI?.applyConfirmed(msg.upgradeId, msg.rank, msg.picksLeft); break;
     case 'upgrade_phase_end': upgradeUI?.close(); break;
     case 'round_start':       addGameLog('system', `Round ${msg.round} started!`); break;
@@ -944,4 +944,3 @@ connectWS();
 </script>
 </body>
 </html>
->>>>>>> Stashed changes
