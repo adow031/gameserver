@@ -31,7 +31,9 @@ class UpgradeScreen {
 
   // ─── Public ────────────────────────────────────────────────────────────────
 
-  open({ picks, available, upgrades, stats }) {
+  open(data) {
+    const { picks, available, upgrades, stats, isInitialClassSelect = false } = data;
+
     this.picksLeft = picks;
     this.available = new Set(available);
     this.owned     = new Map(Object.entries(upgrades || {}));
@@ -40,6 +42,15 @@ class UpgradeScreen {
     this.container.style.display = 'flex';
     this.timeLeft = 30;
     this._startTimer();
+
+    // Class select headline on first launch
+    const headline = this.container.querySelector('#upg-headline');
+    if (headline) {
+      headline.textContent = isInitialClassSelect 
+        ? "Choose your class" 
+        : "Choose an upgrade";
+    }
+
     this._refresh();
   }
 

@@ -88,25 +88,24 @@ class GameState {
 
   // ─── Public API ─────────────────────────────────────────────────────────────
   start() {
-    // INITIAL CLASS SELECT ON GAME LAUNCH
-    // 3 free picks so players can choose their starting class/path
+    // INITIAL CLASS SELECT ON GAME LAUNCH — 3 free picks
     this.phase = 'upgrade';
     for (const p of Object.values(this.players)) {
-      p.pendingPicks = 3;     // initial class choice picks
-      p.basePicks    = 0;
+      p.pendingPicks = 3;
+      p.basePicks    = 3;      // ← this is what getAvailableUpgrades expects
       p.bonusPicks   = 0;
     }
 
     // Tell every client to show the upgrade screen immediately
     for (const [id, p] of Object.entries(this.players)) {
-      const available = getAvailableUpgrades(p);   // assumes this function exists in upgrades.js
+      const available = getAvailableUpgrades(p);
       this.sendTo(id, {
         type:       'upgrade_phase',
         picks:      p.pendingPicks,
         available,
         upgrades:   Object.fromEntries(p.upgrades),
         stats:      p.derivedStats,
-        isInitialClassSelect: true   // ← new flag so upgradeScreen can change the title
+        isInitialClassSelect: true
       });
     }
   }
